@@ -10,6 +10,7 @@ export const translations = {
     nav_events: 'Events',
     nav_achievements: 'Achievements',
     nav_team: 'Our team',
+    nav_news: 'Our news',
     admin_login: 'Admin login',
 
     // Hero
@@ -71,6 +72,13 @@ export const translations = {
     footer_org: 'American Concrete Institute<br />Jordan University of Science & Technology',
     footer_tagline: 'Engineering tomorrow, together.',
 
+    // News
+    news_kicker: '07 / LATEST UPDATES',
+    news_heading: 'Our<br /><em>news.</em>',
+    news_subtext: 'Stay up to date with the latest from ACI JUST — announcements, milestones, and stories from the team.',
+    news_read_more: 'Read more',
+    news_no_items: 'No news items yet. Check back soon.',
+
     // Language toggle
     lang_button: 'عربي',
   },
@@ -83,6 +91,7 @@ export const translations = {
     nav_events: 'الفعاليات',
     nav_achievements: 'الإنجازات',
     nav_team: 'فريقنا',
+    nav_news: 'أخبارنا',
     admin_login: 'دخول الإدارة',
 
     // Hero
@@ -143,6 +152,13 @@ export const translations = {
     // Footer
     footer_org: 'المعهد الأمريكي للخرسانة<br />جامعة العلوم والتكنولوجيا الأردنية',
     footer_tagline: 'نُهندس الغد، معاً.',
+
+    // News
+    news_kicker: '07 / آخر التحديثات',
+    news_heading: 'أخبارنا<br /><em>الجديدة.</em>',
+    news_subtext: 'ابقَ على اطلاع بآخر مستجدات ACI JUST — إعلانات وإنجازات وقصص من الفريق.',
+    news_read_more: 'اقرأ المزيد',
+    news_no_items: 'لا توجد أخبار بعد. تابعنا قريباً.',
 
     // Language toggle
     lang_button: 'English',

@@ -12,6 +12,7 @@ type Member = { id: string; member_id: string | null; full_name: string; role: s
 type Achievement = { id: string; title: string; year: number; description: string; ranking: string | null };
 type Event = { id: string; title: string; description: string; event_date: string; location: string; event_type: string };
 type Research = { id: string; title: string; description: string; year: number; status: string };
+type News = { id: string; title: string; description: string; image_url: string | null; published_date: string; external_url: string | null };
 type SiteContent = Record<string, string>;
 
 const fallbackDepartments: Department[] = [
@@ -28,6 +29,10 @@ const fallbackMembers: Member[] = [
 const fallbackAchievement: Achievement = { id: '1', title: 'Ranked #1 Worldwide', year: 2025, description: 'ACI JUST achieved first place among ACI student chapters around the world in 2025.', ranking: '1st place among ACI student chapters worldwide' };
 const fallbackEvents: Event[] = [{ id: '1', title: 'ACI JUST Concrete Talks', description: 'A student-led evening of ideas, case studies, and conversation around the material that shapes our world.', event_date: '2026-10-15', location: 'Civil Engineering Department, JUST', event_type: 'Lecture' }];
 const fallbackResearch: Research[] = [{ id: '1', title: 'Concrete Innovation & Sustainable Materials', description: 'Exploring practical ways to make concrete more responsible, resilient, and ready for the future.', year: 2025, status: 'Active' }];
+const fallbackNews: News[] = [
+  { id: '1', title: 'ACI JUST Wins Global Recognition', description: 'Our chapter ranked first among ACI student chapters worldwide for 2025.', image_url: null, published_date: '2025-06-15', external_url: null },
+  { id: '2', title: 'New Research Lab Opens', description: 'A new materials testing lab is now available for student research projects.', image_url: null, published_date: '2025-09-01', external_url: null },
+];
 
 export function PublicSite() {
   const [activeSection, setActiveSection] = useState('home');
@@ -38,6 +43,7 @@ export function PublicSite() {
   const [achievement, setAchievement] = useState<Achievement>(fallbackAchievement);
   const [events, setEvents] = useState<Event[]>(fallbackEvents);
   const [research, setResearch] = useState<Research[]>(fallbackResearch);
+  const [news, setNews] = useState<News[]>(fallbackNews);
   const [content, setContent] = useState<SiteContent>({});
   const [activeDept, setActiveDept] = useState<string | null>(null);
 
@@ -45,12 +51,13 @@ export function PublicSite() {
 
   useEffect(() => {
     async function loadContent() {
-      const [d, m, a, e, r, c] = await Promise.all([
+      const [d, m, a, e, r, n, c] = await Promise.all([
         supabase.from('departments').select('id,name,slug,description,accent,image_url').order('created_at'),
         supabase.from('members').select('id,member_id,full_name,role,academic_info,bio,points,department_id,image_url,join_date,linkedin_url').order('points', { ascending: false }),
         supabase.from('achievements').select('id,title,year,description,ranking').order('year', { ascending: false }).limit(1).maybeSingle(),
         supabase.from('events').select('id,title,description,event_date,location,event_type').order('event_date').limit(3),
         supabase.from('research_projects').select('id,title,description,year,status').order('year', { ascending: false }).limit(3),
+        supabase.from('news').select('id,title,description,image_url,published_date,external_url').order('published_date', { ascending: false }).limit(6),
         supabase.from('site_content').select('key,value'),
       ]);
       if (!d.error && d.data?.length) setDepartments(d.data);
@@ -58,6 +65,7 @@ export function PublicSite() {
       if (!a.error && a.data) setAchievement(a.data);
       if (!e.error && e.data?.length) setEvents(e.data);
       if (!r.error && r.data?.length) setResearch(r.data);
+      if (!n.error && n.data?.length) setNews(n.data);
       if (!c.error && c.data) {
         const map: SiteContent = {};
         c.data.forEach((row: { key: string; value: string }) => { map[row.key] = row.value; });
@@ -109,7 +117,7 @@ export function PublicSite() {
           <span><strong>ACI JUST</strong><small>{isAr ? 'فصل طلابي' : 'Student Chapter'}</small></span>
         </button>
         <nav className={menuOpen ? 'nav-links open' : 'nav-links'}>
-          {(['home', 'about', 'departments', 'research', 'events', 'achievements', 'team'] as const).map((item) => (
+          {(['home', 'about', 'departments', 'research', 'events', 'achievements', 'team', 'news'] as const).map((item) => (
             <button key={item} className={activeSection === item ? 'active' : ''} onClick={() => navigate(item)}>
               {t(`nav_${item}` as TranslationKey)}
             </button>
@@ -261,6 +269,33 @@ export function PublicSite() {
             ))}
           </div>
           {filteredMembers.length === 0 && <p className="empty-team">{t('no_members')}</p>}
+        </section>
+
+        <section id="news" className="section-pad news-section">
+          <div className="section-heading"><div><span className="section-kicker">{t('news_kicker')}</span><h2 dangerouslySetInnerHTML={{ __html: tc('news_heading', t('news_heading')).replace(/\n/g, '<br/>') }} /></div><p>{tc('news_subtext', t('news_subtext'))}</p></div>
+          {news.length > 0 ? (
+            <div className="news-grid">
+              {news.map((item, index) => (
+                <article className="news-card" key={item.id}>
+                  {item.image_url ? (
+                    <img src={item.image_url} alt={item.title} className="news-card-img" />
+                  ) : (
+                    <div className="news-card-img-placeholder"><span className="news-card-index">0{index + 1}</span></div>
+                  )}
+                  <div className="news-card-body">
+                    <span className="news-card-date">{new Date(item.published_date).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                    {item.external_url && (
+                      <a href={item.external_url} target="_blank" rel="noopener noreferrer" className="news-card-link">{t('news_read_more')} <Arrow size={15} /></a>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-team">{t('news_no_items')}</p>
+          )}
         </section>
       </main>
 
