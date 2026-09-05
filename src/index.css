@@ -24,8 +24,29 @@ button { border: 0; font: inherit; cursor: pointer; }
 .event-list { border-top: 1px solid var(--line); }.event-row { display: grid; grid-template-columns: 40px 140px 1fr 24px; align-items: center; gap: 20px; padding: 24px 0; border-bottom: 1px solid var(--line); }.event-index { font: 10px 'DM Mono'; color: #8a9bad; }.event-date { display: flex; align-items: center; gap: 9px; }.event-date strong { font: 600 34px 'Space Grotesk'; color: var(--blue); }.event-date span, .event-info > span { font: 10px 'DM Mono'; color: #5a7080; line-height: 1.35; }.event-info h3 { font: 500 21px 'Space Grotesk'; margin: 5px 0; }.event-info p { color: var(--muted); margin: 0; font-size: 12px; }.event-arrow { color: var(--concrete-dark); }
 .team-section { background: #e4ebf3; }.dept-tabs { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }.dept-tabs button { padding: 10px 18px; background: #fff; border: 1px solid var(--line); font-size: 12px; color: var(--muted); border-radius: 3px; transition: all .15s; }.dept-tabs button:hover { border-color: var(--blue); color: var(--blue); }.dept-tabs button.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 .dept-detail-banner { display: flex; gap: 24px; background: #fff; border: 1px solid var(--line); padding: 24px; margin-bottom: 24px; align-items: center; }.dept-banner-img { width: 120px; height: 120px; object-fit: cover; border-radius: 4px; }.dept-banner-info h3 { font: 600 22px 'Space Grotesk'; margin: 0 0 8px; color: var(--blue); }.dept-banner-info p { color: var(--muted); font-size: 13px; line-height: 1.6; margin: 0 0 8px; }.dept-banner-info span { font: 10px 'DM Mono'; color: var(--blue); text-transform: uppercase; }
-.team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }.member-card { min-height: 320px; background: #fff; border: 1px solid var(--line); padding: 18px; position: relative; transition: box-shadow .2s, transform .2s; }.member-card:hover { box-shadow: 0 6px 24px rgba(21,101,192,.1); transform: translateY(-3px); }.member-avatar { height: 126px; display: grid; place-items: center; color: var(--blue); background: var(--blue-pale); }.member-avatar-img { height: 126px; width: 100%; object-fit: cover; display: block; }.avatar-1 { background: #e8d9cb; color: #bb734e; }.avatar-2 { background: #d5ded2; color: #68816d; }.member-meta { margin-top: 19px; }.member-meta > span:first-child { font: 10px 'DM Mono'; color: #5a7080; text-transform: uppercase; }.member-meta h3 { font: 500 18px 'Space Grotesk'; margin: 7px 0 4px; }.member-meta p { color: var(--muted); font-size: 11px; margin: 0 0 6px; }.member-id-badge { display: inline-block; font: 9px 'DM Mono'; background: var(--blue-pale); color: var(--blue); padding: 2px 7px; border-radius: 2px; margin-top: 4px; }.member-join-date { display: block; font: 9px 'DM Mono'; color: #8a9bad; margin-top: 4px; }.member-footer { display: flex; justify-content: space-between; align-items: end; margin-top: 14px; }.member-score { text-align: left; }.member-score strong { display: block; font: 500 24px 'Space Grotesk'; color: var(--blue); }.member-score span { font: 9px 'DM Mono'; color: #8a9bad; }.member-linkedin { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--blue-pale); color: var(--blue); transition: background .15s, color .15s; }.member-linkedin:hover { background: var(--blue); color: #fff; }
+.team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }.member-card { min-height: 320px; background: #fff; border: 1px solid var(--line); padding: 18px; position: relative; transition: box-shadow .2s, transform .2s; }.member-card:hover { box-shadow: 0 6px 24px rgba(21,101,192,.1); transform: translateY(-3px); }.member-avatar { aspect-ratio: 5 / 4; display: grid; place-items: center; color: var(--blue); background: var(--blue-pale); }.member-avatar-img { aspect-ratio: 5 / 4; width: 100%; object-fit: cover; display: block; }.avatar-1 { background: #e8d9cb; color: #bb734e; }.avatar-2 { background: #d5ded2; color: #68816d; }.member-meta { margin-top: 19px; }.member-meta > span:first-child { font: 10px 'DM Mono'; color: #5a7080; text-transform: uppercase; }.member-meta h3 { font: 500 18px 'Space Grotesk'; margin: 7px 0 4px; }.member-meta p { color: var(--muted); font-size: 11px; margin: 0 0 6px; }.member-id-badge { display: inline-block; font: 9px 'DM Mono'; background: var(--blue-pale); color: var(--blue); padding: 2px 7px; border-radius: 2px; margin-top: 4px; }.member-join-date { display: block; font: 9px 'DM Mono'; color: #8a9bad; margin-top: 4px; }.member-footer { display: flex; justify-content: space-between; align-items: end; margin-top: 14px; }.member-score { text-align: left; }.member-score strong { display: block; font: 500 24px 'Space Grotesk'; color: var(--blue); }.member-score span { font: 9px 'DM Mono'; color: #8a9bad; }.member-linkedin { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--blue-pale); color: var(--blue); transition: background .15s, color .15s; }.member-linkedin:hover { background: var(--blue); color: #fff; }
 .empty-team { color: var(--muted); font-size: 14px; padding: 40px 0; text-align: center; }
+
+/* ===== Sponsors Section ===== */
+.sponsors-section { background: #fff; }
+.sponsors-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.sponsor-card { background: #f7f9fc; border: 1px solid var(--line); padding: 28px 20px; text-align: center; transition: box-shadow .2s, transform .2s; }
+.sponsor-card:hover { box-shadow: 0 6px 24px rgba(21,101,192,.1); transform: translateY(-3px); }
+.sponsor-logo { width: 100%; height: 100px; object-fit: contain; margin-bottom: 16px; }
+.sponsor-logo-placeholder { height: 100px; display: grid; place-items: center; background: var(--blue-pale); color: var(--blue); margin-bottom: 16px; border-radius: 4px; }
+.sponsor-card h3 { font: 600 16px 'Space Grotesk'; margin: 0 0 8px; }
+.sponsor-card p { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 0 0 12px; }
+.sponsor-link { display: inline-flex; align-items: center; gap: 6px; font: 10px 'DM Mono'; color: var(--blue); text-decoration: none; text-transform: uppercase; letter-spacing: .5px; }
+.sponsor-link:hover { gap: 10px; }
+
+/* ===== Founders ===== */
+.founders-banner { background: linear-gradient(135deg, #1a3a5c, #0d2847); color: #fff; }
+.founders-banner .dept-banner-info h3 { color: #d6e6f7; }
+.founders-banner .dept-banner-info p { color: #9ab5cc; }
+.founders-banner .dept-banner-info span { color: #4a90d9; }
+.founders-badge { width: 72px; height: 72px; border-radius: 50%; background: rgba(74,144,217,.2); color: #4a90d9; display: grid; place-items: center; flex-shrink: 0; }
+.founder-badge { background: #1a3a5c !important; color: #d6e6f7 !important; }
+.founder-badge { display: inline-flex; align-items: center; }
 
 /* ===== News Section ===== */
 .news-section { background: #f0f4f8; }
@@ -101,6 +122,8 @@ footer { padding: 50px 9vw; background: var(--ink); color: #d6e6f7; display: fle
 .edit-form input:focus, .edit-form select:focus, .edit-form textarea:focus { border-color: var(--blue); }
 .edit-form textarea { resize: vertical; }
 .form-actions { display: flex; gap: 12px; margin-top: 24px; }
+.checkbox-label { display: flex !important; align-items: center; gap: 8px; font: 12px 'DM Sans' !important; color: var(--ink) !important; text-transform: none !important; cursor: pointer; }
+.checkbox-label input { width: auto !important; margin: 0 !important; }
 .button-ghost { background: none; border: 1px solid var(--line); color: var(--muted); }
 
 .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -261,4 +284,5 @@ footer { padding: 50px 9vw; background: var(--ink); color: #d6e6f7; display: fle
   .dept-detail-banner { flex-direction: column; text-align: center; }.dept-banner-img { margin: 0 auto; }
   .about-body { flex-direction: column; gap: 32px; }.about-image { width: 100%; max-width: 320px; margin: 0 auto; }
   .news-grid { grid-template-columns: 1fr; }
+  .sponsors-grid { grid-template-columns: repeat(2, 1fr); }
 }

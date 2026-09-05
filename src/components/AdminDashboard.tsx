@@ -3,12 +3,14 @@ import {
   ArrowLeft, ArrowRight, Award, CalendarDays, CircleUserRound,
   FlaskConical, LayoutDashboard, LoaderCircle, LockKeyhole, LogOut,
   Menu, Newspaper, PencilLine, Plus, Save, Trash2, Trophy, Users, X,
+  Crown, Building2,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { ImageUpload } from '@/components/ImageUpload';
 
 type Department = { id: string; name: string; slug: string; description: string; accent: string; image_url: string | null };
-type Member = { id: string; member_id: string | null; full_name: string; role: string; academic_info: string; bio: string; points: number; department_id: string; image_url: string | null; join_date: string | null; linkedin_url: string | null };
+type Member = { id: string; member_id: string | null; full_name: string; role: string; academic_info: string; bio: string; points: number; department_id: string; image_url: string | null; join_date: string | null; linkedin_url: string | null; is_founder: boolean };
+type Sponsor = { id: string; name: string; logo_url: string | null; website_url: string | null; description: string; display_order: number };
 type Achievement = { id: string; title: string; year: number; description: string; ranking: string | null; image_url: string | null; external_url: string | null };
 type Event = { id: string; title: string; description: string; event_date: string; location: string; event_type: string; image_url: string | null };
 type Research = { id: string; title: string; description: string; year: number; status: string; image_url: string | null };
@@ -17,7 +19,7 @@ type PointHistory = { id: string; change: number; reason: string; created_at: st
 type AdminRole = { role: string; department_id: string | null };
 type SiteContent = { key: string; value: string }[];
 
-type View = 'overview' | 'departments' | 'members' | 'research' | 'events' | 'achievements' | 'news' | 'points' | 'content';
+type View = 'overview' | 'departments' | 'members' | 'research' | 'events' | 'achievements' | 'news' | 'sponsors' | 'points' | 'content';
 
 export function AdminDashboard() {
   const [session, setSession] = useState(false);
@@ -37,6 +39,7 @@ export function AdminDashboard() {
   const [events, setEvents] = useState<Event[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [news, setNews] = useState<News[]>([]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [siteContent, setSiteContent] = useState<SiteContent>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
@@ -79,13 +82,14 @@ export function AdminDashboard() {
 
   const loadAll = useCallback(async () => {
     setLoadingData(true);
-    const [d, m, r, e, a, n, sc] = await Promise.all([
+    const [d, m, r, e, a, n, sp, sc] = await Promise.all([
       supabase.from('departments').select('*').order('created_at'),
       supabase.from('members').select('*').order('points', { ascending: false }),
       supabase.from('research_projects').select('*').order('year', { ascending: false }),
       supabase.from('events').select('*').order('event_date', { ascending: false }),
       supabase.from('achievements').select('*').order('year', { ascending: false }),
       supabase.from('news').select('*').order('published_date', { ascending: false }),
+      supabase.from('sponsors').select('*').order('display_order'),
       supabase.from('site_content').select('key,value').order('key'),
     ]);
     if (!d.error && d.data) setDepartments(d.data);
@@ -94,6 +98,7 @@ export function AdminDashboard() {
     if (!e.error && e.data) setEvents(e.data);
     if (!a.error && a.data) setAchievements(a.data);
     if (!n.error && n.data) setNews(n.data);
+    if (!sp.error && sp.data) setSponsors(sp.data);
     if (!sc.error && sc.data) setSiteContent(sc.data);
     setLoadingData(false);
   }, []);
@@ -174,6 +179,7 @@ export function AdminDashboard() {
     { key: 'events', label: 'Events', icon: <CalendarDays size={18} /> },
     { key: 'achievements', label: 'Achievements', icon: <Trophy size={18} /> },
     { key: 'news', label: 'News', icon: <Newspaper size={18} /> },
+    { key: 'sponsors', label: 'Sponsors', icon: <Building2 size={18} /> },
     { key: 'points', label: 'Points', icon: <Award size={18} /> },
     { key: 'content', label: 'Site Content', icon: <PencilLine size={18} /> },
   ];
@@ -204,13 +210,14 @@ export function AdminDashboard() {
         <div className="admin-content">
           {loadingData ? <div className="admin-loading"><LoaderCircle className="spin" size={24} /></div> : (
             <>
-              {view === 'overview' && <OverviewView departments={departments} members={members} research={research} events={events} achievements={achievements} news={news} onNavigate={setView} />}
+              {view === 'overview' && <OverviewView departments={departments} members={members} research={research} events={events} achievements={achievements} news={news} sponsors={sponsors} onNavigate={setView} />}
               {view === 'departments' && <DepartmentsView departments={departments} members={members} editing={editing} creating={creating} setEditing={setEditing} setCreating={setCreating} reload={loadAll} />}
               {view === 'members' && <MembersView members={members} departments={departments} editing={editing} creating={creating} setEditing={setEditing} setCreating={setCreating} reload={loadAll} />}
               {view === 'research' && <ResearchView research={research} editing={editing} creating={creating} setEditing={setEditing} setCreating={setCreating} reload={loadAll} />}
               {view === 'events' && <EventsView events={events} editing={editing} creating={creating} setEditing={setEditing} setCreating={setCreating} reload={loadAll} />}
               {view === 'achievements' && <AchievementsView achievements={achievements} editing={editing} creating={creating} setEditing={setEditing} setCreating={setCreating} reload={loadAll} />}
               {view === 'news' && <NewsView news={news} editing={editing} creating={creating} setEditing={setEditing} setCreating={setCreating} reload={loadAll} />}
+              {view === 'sponsors' && <SponsorsView sponsors={sponsors} editing={editing} creating={creating} setEditing={setEditing} setCreating={setCreating} reload={loadAll} />}
               {view === 'points' && <PointsView members={members} reload={loadAll} />}
               {view === 'content' && <ContentView content={siteContent} reload={loadAll} />}
             </>
@@ -221,8 +228,8 @@ export function AdminDashboard() {
   );
 }
 
-function OverviewView({ departments, members, research, events, achievements, news, onNavigate }: {
-  departments: Department[]; members: Member[]; research: Research[]; events: Event[]; achievements: Achievement[]; news: News[]; onNavigate: (v: View) => void;
+function OverviewView({ departments, members, research, events, achievements, news, sponsors, onNavigate }: {
+  departments: Department[]; members: Member[]; research: Research[]; events: Event[]; achievements: Achievement[]; news: News[]; sponsors: Sponsor[]; onNavigate: (v: View) => void;
 }) {
   const cards = [
     { label: 'Total Members', value: members.length, icon: <CircleUserRound />, view: 'members' as View },
@@ -231,6 +238,7 @@ function OverviewView({ departments, members, research, events, achievements, ne
     { label: 'Events', value: events.length, icon: <CalendarDays />, view: 'events' as View },
     { label: 'Achievements', value: achievements.length, icon: <Trophy />, view: 'achievements' as View },
     { label: 'News Items', value: news.length, icon: <Newspaper />, view: 'news' as View },
+    { label: 'Sponsors', value: sponsors.length, icon: <Building2 />, view: 'sponsors' as View },
   ];
   return (
     <div>
@@ -378,6 +386,7 @@ function MembersView({ members, departments, editing, creating, setEditing, setC
           </div>
           <label>Academic Info<input value={form.academic_info} onChange={(e) => setForm({ ...form, academic_info: e.target.value })} placeholder="e.g. Civil Engineering \u00b7 4th Year" /></label>
           <label>LinkedIn Profile URL<input value={form.linkedin_url ?? ''} onChange={(e) => setForm({ ...form, linkedin_url: e.target.value })} placeholder="https://linkedin.com/in/..." /></label>
+          <label className="checkbox-label"><input type="checkbox" checked={form.is_founder ?? false} onChange={(e) => setForm({ ...form, is_founder: e.target.checked })} /> Founding member (shows in The Founders tab)</label>
           <label>Bio<textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} rows={3} /></label>
           <div className="form-actions">
             <button type="submit" className="button button-dark"><Save size={16} /> Save</button>
@@ -715,6 +724,63 @@ function PointsView({ members, reload }: { members: Member[]; reload: () => Prom
             </>
           ) : <p className="empty-state">Select a member to manage their points.</p>}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function SponsorsView({ sponsors, editing, creating, setEditing, setCreating, reload }: {
+  sponsors: Sponsor[]; editing: string | null; creating: boolean; setEditing: (v: string | null) => void; setCreating: (v: boolean) => void; reload: () => Promise<void>;
+}) {
+  const [form, setForm] = useState<Sponsor>({ id: '', name: '', logo_url: null, website_url: null, description: '', display_order: 0 });
+
+  function startCreate() { setForm({ id: '', name: '', logo_url: null, website_url: null, description: '', display_order: sponsors.length }); setCreating(true); setEditing(null); }
+  function startEdit(s: Sponsor) { setForm(s); setEditing(s.id); setCreating(false); }
+
+  async function save(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (creating) await supabase.from('sponsors').insert(form);
+    else await supabase.from('sponsors').update(form).eq('id', form.id);
+    setEditing(null); setCreating(false); await reload();
+  }
+
+  async function del(id: string) { if (confirm('Delete this sponsor?')) { await supabase.from('sponsors').delete().eq('id', id); await reload(); } }
+
+  return (
+    <div>
+      <div className="content-header">
+        <h2>Manage Sponsors</h2>
+        {!creating && !editing && <button className="button button-dark" onClick={startCreate}><Plus size={16} /> Add Sponsor</button>}
+      </div>
+      {(creating || editing) && (
+        <form className="edit-form" onSubmit={save}>
+          <h3>{creating ? 'New Sponsor' : 'Edit Sponsor'}</h3>
+          <label>Name<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></label>
+          <label>Website URL<input value={form.website_url ?? ''} onChange={(e) => setForm({ ...form, website_url: e.target.value })} placeholder="https://..." /></label>
+          <label>Display Order<input type="number" value={form.display_order} onChange={(e) => setForm({ ...form, display_order: parseInt(e.target.value) || 0 })} /></label>
+          <label>Description<textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} /></label>
+          <ImageUpload value={form.logo_url} onChange={(url) => setForm({ ...form, logo_url: url })} label="Sponsor Logo" folder="sponsors" />
+          <div className="form-actions">
+            <button type="submit" className="button button-dark"><Save size={16} /> Save</button>
+            <button type="button" className="button button-ghost" onClick={() => { setCreating(false); setEditing(null); }}>Cancel</button>
+          </div>
+        </form>
+      )}
+      <div className="card-grid">
+        {sponsors.map((s) => (
+          <div className="admin-card" key={s.id}>
+            {s.logo_url ? <img src={s.logo_url} alt={s.name} className="card-image" /> : <div className="card-image-placeholder"><Building2 size={28} /></div>}
+            <div className="card-body">
+              <h3>{s.name}</h3>
+              <p>{s.description}</p>
+              <span className="card-meta">Order: {s.display_order}{s.website_url ? ' · has link' : ''}</span>
+              <div className="card-actions">
+                <button onClick={() => startEdit(s)}><PencilLine size={15} /> Edit</button>
+                <button onClick={() => del(s.id)} className="danger"><Trash2 size={15} /></button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

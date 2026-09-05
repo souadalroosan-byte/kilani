@@ -11,6 +11,7 @@ export const translations = {
     nav_achievements: 'Achievements',
     nav_team: 'Our team',
     nav_news: 'Our news',
+    nav_sponsors: 'Our sponsors',
     admin_login: 'Admin login',
 
     // Hero
@@ -58,6 +59,7 @@ export const translations = {
 
     // Team
     team_kicker: '06 / THE PEOPLE',
+    founders_tab: 'The Founders',
     team_heading: 'Meet the<br /><em>makers.</em>',
     team_subtext: 'Students with different stories, skills, and perspectives — learning from one another as we go.',
     all_members: 'All Members',
@@ -71,6 +73,13 @@ export const translations = {
     // Footer
     footer_org: 'American Concrete Institute<br />Jordan University of Science & Technology',
     footer_tagline: 'Engineering tomorrow, together.',
+
+    // Sponsors
+    sponsors_kicker: '08 / OUR PARTNERS',
+    sponsors_heading: 'Our<br /><em>sponsors.</em>',
+    sponsors_subtext: 'The organizations and companies that make our work possible.',
+    sponsors_visit: 'Visit website',
+    sponsors_no_items: 'No sponsors to display yet.',
 
     // News
     news_kicker: '07 / LATEST UPDATES',
@@ -92,6 +101,7 @@ export const translations = {
     nav_achievements: 'الإنجازات',
     nav_team: 'فريقنا',
     nav_news: 'أخبارنا',
+    nav_sponsors: 'رعاةنا',
     admin_login: 'دخول الإدارة',
 
     // Hero
@@ -139,6 +149,7 @@ export const translations = {
 
     // Team
     team_kicker: '06 / الأشخاص',
+    founders_tab: 'المؤسسون',
     team_heading: 'تعرّف على<br /><em>الصانعين.</em>',
     team_subtext: 'طلاب بقصص ومهارات ومنظورات مختلفة — يتعلّمون من بعضهم البعض في الطريق.',
     all_members: 'كل الأعضاء',
@@ -152,6 +163,13 @@ export const translations = {
     // Footer
     footer_org: 'المعهد الأمريكي للخرسانة<br />جامعة العلوم والتكنولوجيا الأردنية',
     footer_tagline: 'نُهندس الغد، معاً.',
+
+    // Sponsors
+    sponsors_kicker: '08 / شركاؤنا',
+    sponsors_heading: 'رعاةنا<br /><em>الكِرام.</em>',
+    sponsors_subtext: 'المؤسسات والشركات التي تجعل عملنا ممكناً.',
+    sponsors_visit: 'زيارة الموقع',
+    sponsors_no_items: 'لا يوجد رعاة بعد.',
 
     // News
     news_kicker: '07 / آخر التحديثات',

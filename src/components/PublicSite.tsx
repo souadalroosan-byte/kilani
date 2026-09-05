@@ -2,17 +2,18 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowRight, ArrowLeft, ChevronRight, ChevronLeft, CircleUserRound, FlaskConical, Hammer,
   Instagram, Linkedin, LockKeyhole, Menu, Sparkles, Trophy, Users, X,
-  Building2, Layers, Ruler, Beaker, Languages,
+  Building2, Layers, Ruler, Beaker, Languages, Crown, ExternalLink,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { translations, type Lang, type TranslationKey } from '@/lib/translations';
 
 type Department = { id: string; name: string; slug: string; description: string; accent: string; image_url: string | null };
-type Member = { id: string; member_id: string | null; full_name: string; role: string; academic_info: string; bio: string; points: number; department_id: string; image_url: string | null; join_date: string | null; linkedin_url: string | null };
+type Member = { id: string; member_id: string | null; full_name: string; role: string; academic_info: string; bio: string; points: number; department_id: string; image_url: string | null; join_date: string | null; linkedin_url: string | null; is_founder: boolean };
 type Achievement = { id: string; title: string; year: number; description: string; ranking: string | null };
 type Event = { id: string; title: string; description: string; event_date: string; location: string; event_type: string };
 type Research = { id: string; title: string; description: string; year: number; status: string };
 type News = { id: string; title: string; description: string; image_url: string | null; published_date: string; external_url: string | null };
+type Sponsor = { id: string; name: string; logo_url: string | null; website_url: string | null; description: string; display_order: number };
 type SiteContent = Record<string, string>;
 
 const fallbackDepartments: Department[] = [
@@ -22,9 +23,9 @@ const fallbackDepartments: Department[] = [
   { id: '4', name: 'Social Media', slug: 'social-media', description: 'Making engineering knowledge and the team\u2019s story accessible, useful, and easy to share.', accent: 'navy', image_url: null },
 ];
 const fallbackMembers: Member[] = [
-  { id: '1', member_id: 'R001', full_name: 'Ahmad Al-Kilani', role: 'Research Member', academic_info: 'Civil Engineering \u00b7 4th Year', bio: 'Exploring sustainable concrete technologies and material performance.', points: 87, department_id: '1', image_url: null, join_date: '2024-09-01', linkedin_url: null },
-  { id: '2', member_id: 'E001', full_name: 'Lina Haddad', role: 'Events Coordinator', academic_info: 'Civil Engineering \u00b7 3rd Year', bio: 'Bringing students together through hands-on engineering experiences.', points: 92, department_id: '3', image_url: null, join_date: '2024-10-15', linkedin_url: null },
-  { id: '3', member_id: 'P001', full_name: 'Omar Nassar', role: 'PR Member', academic_info: 'Civil Engineering \u00b7 4th Year', bio: 'Building bridges between ACI JUST and the engineering community.', points: 79, department_id: '2', image_url: null, join_date: '2024-09-10', linkedin_url: null },
+  { id: '1', member_id: 'R001', full_name: 'Ahmad Al-Kilani', role: 'Research Member', academic_info: 'Civil Engineering \u00b7 4th Year', bio: 'Exploring sustainable concrete technologies and material performance.', points: 87, department_id: '1', image_url: null, join_date: '2024-09-01', linkedin_url: null, is_founder: true },
+  { id: '2', member_id: 'E001', full_name: 'Lina Haddad', role: 'Events Coordinator', academic_info: 'Civil Engineering \u00b7 3rd Year', bio: 'Bringing students together through hands-on engineering experiences.', points: 92, department_id: '3', image_url: null, join_date: '2024-10-15', linkedin_url: null, is_founder: true },
+  { id: '3', member_id: 'P001', full_name: 'Omar Nassar', role: 'PR Member', academic_info: 'Civil Engineering \u00b7 4th Year', bio: 'Building bridges between ACI JUST and the engineering community.', points: 79, department_id: '2', image_url: null, join_date: '2024-09-10', linkedin_url: null, is_founder: false },
 ];
 const fallbackAchievement: Achievement = { id: '1', title: 'Ranked #1 Worldwide', year: 2025, description: 'ACI JUST achieved first place among ACI student chapters around the world in 2025.', ranking: '1st place among ACI student chapters worldwide' };
 const fallbackEvents: Event[] = [{ id: '1', title: 'ACI JUST Concrete Talks', description: 'A student-led evening of ideas, case studies, and conversation around the material that shapes our world.', event_date: '2026-10-15', location: 'Civil Engineering Department, JUST', event_type: 'Lecture' }];
@@ -32,6 +33,10 @@ const fallbackResearch: Research[] = [{ id: '1', title: 'Concrete Innovation & S
 const fallbackNews: News[] = [
   { id: '1', title: 'ACI JUST Wins Global Recognition', description: 'Our chapter ranked first among ACI student chapters worldwide for 2025.', image_url: null, published_date: '2025-06-15', external_url: null },
   { id: '2', title: 'New Research Lab Opens', description: 'A new materials testing lab is now available for student research projects.', image_url: null, published_date: '2025-09-01', external_url: null },
+];
+
+const fallbackSponsors: Sponsor[] = [
+  { id: '1', name: 'JUST Faculty of Engineering', logo_url: null, website_url: null, description: 'Our home faculty supporting student research and innovation.', display_order: 0 },
 ];
 
 export function PublicSite() {
@@ -44,20 +49,23 @@ export function PublicSite() {
   const [events, setEvents] = useState<Event[]>(fallbackEvents);
   const [research, setResearch] = useState<Research[]>(fallbackResearch);
   const [news, setNews] = useState<News[]>(fallbackNews);
+  const [sponsors, setSponsors] = useState<Sponsor[]>(fallbackSponsors);
   const [content, setContent] = useState<SiteContent>({});
   const [activeDept, setActiveDept] = useState<string | null>(null);
+  const [showFounders, setShowFounders] = useState(false);
 
   const isAr = lang === 'ar';
 
   useEffect(() => {
     async function loadContent() {
-      const [d, m, a, e, r, n, c] = await Promise.all([
+      const [d, m, a, e, r, n, s, c] = await Promise.all([
         supabase.from('departments').select('id,name,slug,description,accent,image_url').order('created_at'),
-        supabase.from('members').select('id,member_id,full_name,role,academic_info,bio,points,department_id,image_url,join_date,linkedin_url').order('points', { ascending: false }),
+        supabase.from('members').select('id,member_id,full_name,role,academic_info,bio,points,department_id,image_url,join_date,linkedin_url,is_founder').order('points', { ascending: false }),
         supabase.from('achievements').select('id,title,year,description,ranking').order('year', { ascending: false }).limit(1).maybeSingle(),
         supabase.from('events').select('id,title,description,event_date,location,event_type').order('event_date').limit(3),
         supabase.from('research_projects').select('id,title,description,year,status').order('year', { ascending: false }).limit(3),
         supabase.from('news').select('id,title,description,image_url,published_date,external_url').order('published_date', { ascending: false }).limit(6),
+        supabase.from('sponsors').select('id,name,logo_url,website_url,description,display_order').order('display_order'),
         supabase.from('site_content').select('key,value'),
       ]);
       if (!d.error && d.data?.length) setDepartments(d.data);
@@ -66,6 +74,7 @@ export function PublicSite() {
       if (!e.error && e.data?.length) setEvents(e.data);
       if (!r.error && r.data?.length) setResearch(r.data);
       if (!n.error && n.data?.length) setNews(n.data);
+      if (!s.error && s.data?.length) setSponsors(s.data);
       if (!c.error && c.data) {
         const map: SiteContent = {};
         c.data.forEach((row: { key: string; value: string }) => { map[row.key] = row.value; });
@@ -103,9 +112,10 @@ export function PublicSite() {
   ], [members.length, lang]);
 
   const filteredMembers = useMemo(() => {
-    if (!activeDept) return members;
-    return members.filter((m) => m.department_id === activeDept);
-  }, [members, activeDept]);
+    if (showFounders) return members.filter((m) => m.is_founder);
+    if (!activeDept) return members.filter((m) => !m.is_founder);
+    return members.filter((m) => m.department_id === activeDept && !m.is_founder);
+  }, [members, activeDept, showFounders]);
 
   const locale = isAr ? 'ar' : 'en';
 
@@ -117,7 +127,7 @@ export function PublicSite() {
           <span><strong>ACI JUST</strong><small>{isAr ? 'فصل طلابي' : 'Student Chapter'}</small></span>
         </button>
         <nav className={menuOpen ? 'nav-links open' : 'nav-links'}>
-          {(['home', 'about', 'departments', 'research', 'events', 'achievements', 'team', 'news'] as const).map((item) => (
+          {(['home', 'about', 'departments', 'research', 'events', 'achievements', 'team', 'news', 'sponsors'] as const).map((item) => (
             <button key={item} className={activeSection === item ? 'active' : ''} onClick={() => navigate(item)}>
               {t(`nav_${item}` as TranslationKey)}
             </button>
@@ -231,12 +241,13 @@ export function PublicSite() {
         <section id="team" className="section-pad team-section">
           <div className="section-heading"><div><span className="section-kicker">{t('team_kicker')}</span><h2 dangerouslySetInnerHTML={{ __html: tc('team_heading', t('team_heading')).replace(/\n/g, '<br/>') }} /></div><p>{tc('team_subtext', t('team_subtext'))}</p></div>
           <div className="dept-tabs">
-            <button className={!activeDept ? 'active' : ''} onClick={() => setActiveDept(null)}>{t('all_members')}</button>
+            <button className={!activeDept && !showFounders ? 'active' : ''} onClick={() => { setActiveDept(null); setShowFounders(false); }}>{t('all_members')}</button>
             {departments.map((d) => (
-              <button key={d.id} className={activeDept === d.id ? 'active' : ''} onClick={() => setActiveDept(d.id)}>{d.name}</button>
+              <button key={d.id} className={activeDept === d.id && !showFounders ? 'active' : ''} onClick={() => { setActiveDept(d.id); setShowFounders(false); }}>{d.name}</button>
             ))}
+            <button className={showFounders ? 'active' : ''} onClick={() => { setShowFounders(true); setActiveDept(null); }}><Crown size={14} style={{ display: 'inline', marginRight: 6 }} />{t('founders_tab')}</button>
           </div>
-          {activeDept && (() => {
+          {activeDept && !showFounders && (() => {
             const dept = departments.find((d) => d.id === activeDept);
             if (!dept) return null;
             return (
@@ -250,6 +261,16 @@ export function PublicSite() {
               </div>
             );
           })()}
+          {showFounders && (
+            <div className="dept-detail-banner founders-banner">
+              <div className="founders-badge"><Crown size={28} /></div>
+              <div className="dept-banner-info">
+                <h3>{t('founders_tab')}</h3>
+                <p>{t('team_subtext')}</p>
+                <span>{filteredMembers.length} {t(filteredMembers.length === 1 ? 'member_count_one' : 'member_count_other')}</span>
+              </div>
+            </div>
+          )}
           <div className="team-grid">
             {filteredMembers.map((member, index) => (
               <article className="member-card" key={member.id}>
@@ -258,6 +279,7 @@ export function PublicSite() {
                   <span>{member.role}</span>
                   <h3>{member.full_name}</h3>
                   <p>{member.academic_info}</p>
+                  {member.is_founder && <span className="member-id-badge founder-badge"><Crown size={10} style={{ display: 'inline', marginRight: 4 }} />{t('founders_tab')}</span>}
                   {member.member_id && <span className="member-id-badge">{t('member_id_label')}: {member.member_id}</span>}
                   {member.join_date && <span className="member-join-date">{t('joined')} {new Date(member.join_date).toLocaleDateString(locale, { year: 'numeric', month: 'short' })}</span>}
                 </div>
@@ -269,6 +291,30 @@ export function PublicSite() {
             ))}
           </div>
           {filteredMembers.length === 0 && <p className="empty-team">{t('no_members')}</p>}
+        </section>
+
+        <section id="sponsors" className="section-pad sponsors-section">
+          <div className="section-heading"><div><span className="section-kicker">{t('sponsors_kicker')}</span><h2 dangerouslySetInnerHTML={{ __html: tc('sponsors_heading', t('sponsors_heading')).replace(/\n/g, '<br/>') }} /></div><p>{tc('sponsors_subtext', t('sponsors_subtext'))}</p></div>
+          {sponsors.length > 0 ? (
+            <div className="sponsors-grid">
+              {sponsors.map((sponsor) => (
+                <article className="sponsor-card" key={sponsor.id}>
+                  {sponsor.logo_url ? (
+                    <img src={sponsor.logo_url} alt={sponsor.name} className="sponsor-logo" />
+                  ) : (
+                    <div className="sponsor-logo-placeholder"><Building2 size={36} /></div>
+                  )}
+                  <h3>{sponsor.name}</h3>
+                  {sponsor.description && <p>{sponsor.description}</p>}
+                  {sponsor.website_url && (
+                    <a href={sponsor.website_url} target="_blank" rel="noopener noreferrer" className="sponsor-link">{t('sponsors_visit')} <ExternalLink size={14} /></a>
+                  )}
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-team">{t('sponsors_no_items')}</p>
+          )}
         </section>
 
         <section id="news" className="section-pad news-section">
