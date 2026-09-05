@@ -9,34 +9,6 @@ type ImageUploadProps = {
   folder?: string;
 };
 
-function convertDriveUrl(url: string): string {
-  const patterns = [
-    /drive\.google\.com\/file\/d\/([^/]+)/,
-    /drive\.google\.com\/open\?id=([^&]+)/,
-    /drive\.google\.com\/uc\?id=([^&]+)/,
-  /docs\.google\.com\/.*\/d\/([^/]+)/,
-  /docs\.google\.com\/uc\?id=([^&]+)/,
-  /drive\.google\.com\/thumbnail\?id=([^&]+)/,
-  /lh3\.googleusercontent\.com\/d\/([^?]+)/,
-  /lh\d+\.googleusercontent\.com\/d\/([^?]+)/,
-  /lh\d+\.googleusercontent\.com\/u\/\d+\/d\/([^?]+)/,
-  /lh\d+-?\.googleusercontent\.com\/p\/[^?]+/,
-  /lh\d+\.googleusercontent\.com\/[^?]+/,
-  /lh\d+\.ggpht\.com\/[^?]+/,
-  /lh\d+\.googleusercontent\.com\/a-\/[^?]+/,
-    ];
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match) {
-      if (pattern.source.includes('thumbnail')) {
-        return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
-      }
-      return `https://lh3.googleusercontent.com/d/${match[1]}=w1000`;
-    }
-  }
-  return url;
-}
-
 export function ImageUpload({ value, onChange, label = 'Image', folder = 'misc' }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
@@ -64,13 +36,32 @@ export function ImageUpload({ value, onChange, label = 'Image', folder = 'misc' 
     setUploading(false);
   }
 
-  function handleUrlSubmit() {
+  async function handleUrlSubmit() {
     if (!urlInput.trim()) return;
-    const converted = convertDriveUrl(urlInput.trim());
-    onChange(converted);
-    setUrlInput('');
-    setShowUrlInput(false);
+    setUploading(true);
     setError('');
+    try {
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-image`;
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ url: urlInput.trim(), folder }),
+      });
+      const result = await res.json();
+      if (!res.ok || result.error) {
+        throw new Error(result.error || 'Failed to fetch image');
+      }
+      onChange(result.url);
+      setUrlInput('');
+      setShowUrlInput(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function removeImage() {
@@ -87,9 +78,8 @@ export function ImageUpload({ value, onChange, label = 'Image', folder = 'misc' 
       <label className="form-label">{label}</label>
       {value ? (
         <div className="image-preview">
-          <img src={value} alt="Preview" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+          <img src={value} alt="Preview" />
           <button type="button" className="image-remove" onClick={removeImage}><X size={14} /></button>
-          <p className="upload-error" style={{ marginTop: 4 }}>If the image doesn't show, the link may not be a direct image URL.</p>
         </div>
       ) : (
         <>
@@ -109,7 +99,9 @@ export function ImageUpload({ value, onChange, label = 'Image', folder = 'misc' 
                 placeholder="Paste Google Drive or image link..."
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleUrlSubmit(); } }}
               />
-              <button type="button" className="button button-dark" onClick={handleUrlSubmit}>Add</button>
+              <button type="button" className="button button-dark" onClick={handleUrlSubmit} disabled={uploading}>
+                {uploading ? <LoaderCircle size={14} className="spin" /> : 'Add'}
+              </button>
             </div>
           )}
         </>
